@@ -10,10 +10,10 @@ import math
 import random
 import sys
 import pygame as pg
-from Game.settings import *
-from Game.sprites import *
+from settings import *
+from sprites import *
 from os import path
-from Game.utils import *
+from utils import *
 
 # overview - CONCISE AND INFORMATIVE
 class Game:

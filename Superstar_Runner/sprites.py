@@ -6,8 +6,8 @@
 
 import pygame as pg
 from pygame.sprite import Sprite
-from Game.settings import *
-from Game.utils import Cooldown
+from settings import *
+from utils import Cooldown
 from random import randint
 vec = pg.math.Vector2
 
@@ -18,13 +18,13 @@ class Player(Sprite):
         Sprite.__init__(self, self.groups)
         self.game = game
         self.image = pg.Surface((32, 32))
-        #self.image.fill(GREEN)
+        self.image.fill(GREEN)
         self.rect = self.image.get_rect()
         # self.rect.x = x * TILESIZE[0]
         # self.rect.y = y * TILESIZE[1]
         self.vel = vec(0,0)
         self.pos = vec(x,y) * TILESIZE[0]
-        self.speed = 250
+        self.speed = 1000
         self.health = 100
         self.coins = 0
         self.cd = Cooldown(1000)

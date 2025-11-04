@@ -24,7 +24,7 @@ class Player(Sprite):
         # self.rect.y = y * TILESIZE[1]
         self.vel = vec(0,0)
         self.pos = vec(x,y) * TILESIZE[0]
-        self.speed = 250
+        self.speed = 1000
         self.health = 100
         self.coins = 0
         self.cd = Cooldown(1000)
