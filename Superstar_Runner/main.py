@@ -6,6 +6,7 @@
 
 # why? what? how?
 
+#imports
 import math
 import random
 import sys
@@ -16,6 +17,7 @@ from os import path
 from utils import *
 
 # overview - CONCISE AND INFORMATIVE
+# This class handles the main game functionality
 class Game:
    def __init__(self):
       pg.init()
@@ -30,15 +32,18 @@ class Game:
       self.game_folder = path.dirname(__file__)
       self.map = Map(path.join(self.game_folder, 'level1.txt'))
 
+   # new game setup
    def new(self):
       self.player = None
       self.load_data()
 
+      # create sprite groups
       self.all_sprites = pg.sprite.Group()
       self.all_mobs = pg.sprite.Group()
       self.all_coins = pg.sprite.Group()
       self.all_walls = pg.sprite.Group()
 
+      # create objects based on the map data
       for row, tiles in enumerate(self.map.data):
          for col, tile in enumerate(tiles):
                if tile == '1':
@@ -50,7 +55,7 @@ class Game:
                elif tile == 'M':
                   Mob(self, col, row)
      
-     
+   # core game loop
    def run(self):
       while self.playing == True:
          self.dt = self.clock.tick(FPS) / 1000
@@ -62,6 +67,7 @@ class Game:
          self.draw()
       pg.quit()
 
+# input handling
    def events(self):
       for event in pg.event.get():
         if event.type == pg.QUIT:
@@ -69,6 +75,8 @@ class Game:
           self.playing = False
         if event.type == pg.MOUSEBUTTONDOWN:
            print("I can get input from mousey mouse mouse mousekerson")
+
+# update game state
    def update(self):
 
       self.all_sprites.update()
@@ -76,7 +84,7 @@ class Game:
       countdown = 10
       self.time = countdown - seconds
 
-
+# draw everything on the screen
    def draw_text(self, surface, text, size, color, x, y):
         font_name = pg.font.match_font('arial')
         font = pg.font.Font(font_name, size)
@@ -94,7 +102,7 @@ class Game:
       pg.display.flip()
       self.all_sprites.draw(self.screen)
 
-
+# entry point
 if __name__ == "__main__":
 #    creating an instance or instantiating the Game class
    g = Game()
