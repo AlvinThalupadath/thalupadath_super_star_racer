@@ -4,6 +4,7 @@
 # Sprites include: player, mob - moving object
 
 
+import os
 import pygame as pg
 from pygame.sprite import Sprite
 from settings import *
@@ -29,7 +30,7 @@ class Player(Sprite):
         self.rect = self.image.get_rect()
         self.vel = vec(0,0)
         self.pos = vec(x,y) * TILESIZE[0]
-        self.speed = 1000
+        self.speed = 250
         self.health = 100
         self.coins = 0
         self.cd = Cooldown(1000)
@@ -79,12 +80,16 @@ class Player(Sprite):
                 self.vel.y = 0
                 self.rect.y = self.pos.y
 
-    # Load animation frames
+    # Load animation frames from files
     def load_frames(self):
         self.frames = []
-        for i in range(1,3):
-            img = pg.image.load(f"images/player_frame_{i}.png").convert_alpha()
-            img = pg.transform.scale(img, (32, 32))
+        base_folder = os.path.dirname(__file__)  
+        image_folder = os.path.join(base_folder, "images")
+        # Load two frames for animation
+        for i in range(0,2):
+            img_path = os.path.join(image_folder, f"player_frame_{i}.png")
+            img = pg.image.load(img_path).convert_alpha()
+            img = pg.transform.scale(img, TILESIZE)
             self.frames.append(img)
     # Scale image to fit tile size
     def animate(self):
@@ -127,7 +132,7 @@ class Mob(Sprite):
         pg.sprite.Sprite.__init__(self, self.groups)
         Sprite.__init__(self, self.groups)
         self.game = game
-        self.image = pg.Surface((32, 32))
+        self.image = pg.Surface(TILESIZE)
         self.image.fill(RED)
         self.rect = self.image.get_rect()
         self.vel = vec(1,1)
