@@ -12,6 +12,7 @@ from utils import Cooldown
 from random import randint
 vec = pg.math.Vector2
 
+#https://python-forum.io/thread-406.html
 # Animated Player Sprite
 class Player(Sprite):
     # Initialize the player sprite
@@ -255,3 +256,26 @@ class Pew_Pew(Sprite):
                     self.pos.y = hits[0].rect.bottom
                 # self.vel.y = 0
                 self.rect.y = self.pos.y
+class Obstacle(Sprite):
+    # Initialize the wall sprite
+    def __init__(self, game, x, y, state):
+        self.groups = game.all_sprites, game.all_obstacles
+        Sprite.__init__(self, self.groups)
+        self.game = game
+        #Scales and loads obstacle image
+        image_path = os.path.join(self.game.game_folder, "images", "obstacle.png")
+        self.image = pg.image.load(image_path).convert_alpha()
+        self.image = pg.transform.scale(self.image, TILESIZE)
+        
+        self.rect = self.image.get_rect()
+        self.rect.x = x*TILESIZE[0]
+        self.rect.y = y*TILESIZE[1]
+        self.state = state
+
+    def update(self):
+        if self.state == "moving":
+            self.rect.x += 1
+        elif self.state == "moveable":
+            hits = pg.sprites.collide_rect(self.rect, self.game.player.rect)
+            if hits:
+                print("obstacle was encountered by the player.")

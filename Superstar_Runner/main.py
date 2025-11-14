@@ -42,6 +42,7 @@ class Game:
       self.all_mobs = pg.sprite.Group()
       self.all_coins = pg.sprite.Group()
       self.all_walls = pg.sprite.Group()
+      self.all_obstacles = pg.sprite.Group()
 
       # create objects based on the map data
       for row, tiles in enumerate(self.map.data):
@@ -54,6 +55,9 @@ class Game:
                   self.player = Player(self, col, row)
                elif tile == 'M':
                   Mob(self, col, row)
+               elif tile == 'O':
+                  Obstacle(self, col, row, "")
+
      
    # core game loop
    def run(self):
