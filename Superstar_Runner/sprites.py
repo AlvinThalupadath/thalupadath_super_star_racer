@@ -5,6 +5,7 @@
 
 
 import os
+import sys
 import pygame as pg
 from pygame.sprite import Sprite
 from settings import *
@@ -17,7 +18,7 @@ vec = pg.math.Vector2
 class Player(Sprite):
     # Initialize the player sprite
     def __init__(self, game, x, y):
-        self.groups = game.all_sprites
+        self.groups = game.all_sprites, game.all_obstacles
         pg.sprite.Sprite.__init__(self, self.groups)
         Sprite.__init__(self, self.groups)
         self.game = game
@@ -122,6 +123,7 @@ class Player(Sprite):
         self.animate()
         self.collide_with_stuff(self.game.all_mobs, False)
         self.collide_with_stuff(self.game.all_coins, True)
+        self.collide_with_stuff(self.game.all_obstacles, False)
         # print(self.cd.ready())
         
 # Enemy Mob Sprite
@@ -256,26 +258,33 @@ class Pew_Pew(Sprite):
                     self.pos.y = hits[0].rect.bottom
                 # self.vel.y = 0
                 self.rect.y = self.pos.y
+
+
 class Obstacle(Sprite):
-    # Initialize the wall sprite
+    # Initialize the obstacle sprite
     def __init__(self, game, x, y, state):
-        self.groups = game.all_sprites, game.all_obstacles
-        Sprite.__init__(self, self.groups)
+        # register groups and initialize sprite
+        self.groups = (game.all_sprites, game.all_obstacles)
+        pg.sprite.Sprite.__init__(self, *self.groups)
         self.game = game
-        #Scales and loads obstacle image
-        image_path = os.path.join(self.game.game_folder, "images", "obstacle.png")
-        self.image = pg.image.load(image_path).convert_alpha()
-        self.image = pg.transform.scale(self.image, TILESIZE)
-        
-        self.rect = self.image.get_rect()
-        self.rect.x = x*TILESIZE[0]
-        self.rect.y = y*TILESIZE[1]
         self.state = state
 
+        # load image from game's images folder and scale to TILESIZE
+        image_path = os.path.join(self.game.game_folder, "images", "obstacle.png")
+        self.image = pg.image.load(image_path).convert_alpha()
+
+        # support TILESIZE as int or (w,h) tuple
+        if isinstance(TILESIZE, tuple):
+            size = TILESIZE
+        else:
+            size = (TILESIZE, TILESIZE)
+        self.image = pg.transform.scale(self.image, size)
+
+        # set rect / pixel position (x,y are tile coords)
+        self.rect = self.image.get_rect()
+        self.rect.x = x * size[0]
+        self.rect.y = y * size[1]
+
     def update(self):
-        if self.state == "moving":
-            self.rect.x += 1
-        elif self.state == "moveable":
-            hits = pg.sprites.collide_rect(self.rect, self.game.player.rect)
-            if hits:
-                print("obstacle was encountered by the player.")
+        # static obstacle (optional collision handling elsewhere)
+        pass

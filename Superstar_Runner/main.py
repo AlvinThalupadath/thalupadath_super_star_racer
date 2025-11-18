@@ -56,7 +56,8 @@ class Game:
                elif tile == 'M':
                   Mob(self, col, row)
                elif tile == 'O':
-                  Obstacle(self, col, row, "")
+                     print(f"Obstacle found at row {row}, col {col}")
+                     Obstacle(self, col, row, "")
 
      
    # core game loop
@@ -104,7 +105,7 @@ class Game:
       self.draw_text(self.screen, str(self.time), 24, BLACK, 500, 100)
       self.all_sprites.draw(self.screen)
       pg.display.flip()
-      self.all_sprites.draw(self.screen)
+      
 
 # entry point
 if __name__ == "__main__":

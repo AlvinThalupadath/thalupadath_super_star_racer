@@ -10,7 +10,7 @@ class Map:
         # open a specific file and close with 'with'
         with open(filename, 'rt') as f:
             for line in f:
-                self.data.append(line.strip())
+                self.data.append(line.rstrip('\n'))
         # properties of Map that allow us to define length and width
         # also allows for 
         self.tilewidth = len(self.data[0])
