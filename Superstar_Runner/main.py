@@ -25,12 +25,22 @@ class Game:
       self.screen = pg.display.set_mode((WIDTH, HEIGHT))
       pg.display.set_caption("Alvin's awesome game!!!!!")
       self.playing = True
+      self.bg_speed = 4
    
    # sets up a game folder directory path using the current folder containing THIS file
    # give the Game class a map property which uses the Map class to parse the level1.txt file
    def load_data(self):
       self.game_folder = path.dirname(__file__)
       self.map = Map(path.join(self.game_folder, 'level1.txt'))
+      # load background image
+      bg_path = path.join(self.game_folder, "images", "bg_image.png")
+      # load and convert for better performance
+      self.bg_image = pg.image.load(bg_path).convert()
+      # scale to fit screen
+      self.bg_image = pg.transform.scale(self.bg_image, (WIDTH, HEIGHT))
+      # set initial background scroll values
+      self.bg_scroll = 0       
+      self.bg_speed = 2 
 
    # new game setup
    def new(self):
@@ -55,9 +65,9 @@ class Game:
                   self.player = Player(self, col, row)
                elif tile == 'M':
                   Mob(self, col, row)
-               elif tile == 'O':
-                     print(f"Obstacle found at row {row}, col {col}")
-                     Obstacle(self, col, row, "")
+               #elif tile == 'O':
+                     #print(f"Obstacle found at row {row}, col {col}")
+                     #Obstacle(self, col, row, "")
 
      
    # core game loop
@@ -105,6 +115,11 @@ class Game:
       self.draw_text(self.screen, str(self.time), 24, BLACK, 500, 100)
       self.all_sprites.draw(self.screen)
       pg.display.flip()
+      # Draw scrolling background
+      self.bg_scroll = (self.bg_scroll + self.bg_speed) % self.bg_image.get_width()
+      # Draw two images to create a seamless scrolling effect
+      self.screen.blit(self.bg_image, (-self.bg_scroll, 0))
+      self.screen.blit(self.bg_image, (self.bg_image.get_width() - self.bg_scroll, 0))
       
 
 # entry point

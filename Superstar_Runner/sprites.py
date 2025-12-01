@@ -260,31 +260,15 @@ class Pew_Pew(Sprite):
                 self.rect.y = self.pos.y
 
 
-class Obstacle(Sprite):
-    # Initialize the obstacle sprite
+class Wall(Sprite):
+    # Initialize the wall sprite
     def __init__(self, game, x, y, state):
-        # register groups and initialize sprite
-        self.groups = (game.all_sprites, game.all_obstacles)
-        pg.sprite.Sprite.__init__(self, *self.groups)
+        self.groups = game.all_sprites, game.all_walls
+        Sprite.__init__(self, self.groups)
         self.game = game
-        self.state = state
-
-        # load image from game's images folder and scale to TILESIZE
-        image_path = os.path.join(self.game.game_folder, "images", "obstacle.png")
-        self.image = pg.image.load(image_path).convert_alpha()
-
-        # support TILESIZE as int or (w,h) tuple
-        if isinstance(TILESIZE, tuple):
-            size = TILESIZE
-        else:
-            size = (TILESIZE, TILESIZE)
-        self.image = pg.transform.scale(self.image, size)
-
-        # set rect / pixel position (x,y are tile coords)
+        self.image = pg.Surface(TILESIZE)
+        self.image.fill(GREY)
         self.rect = self.image.get_rect()
-        self.rect.x = x * size[0]
-        self.rect.y = y * size[1]
-
-    def update(self):
-        # static obstacle (optional collision handling elsewhere)
-        pass
+        self.rect.x = x*TILESIZE[0]
+        self.rect.y = y*TILESIZE[1]
+        self.state = state
