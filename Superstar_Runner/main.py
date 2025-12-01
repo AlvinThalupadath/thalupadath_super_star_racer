@@ -65,9 +65,9 @@ class Game:
                   self.player = Player(self, col, row)
                elif tile == 'M':
                   Mob(self, col, row)
-               #elif tile == 'O':
-                     #print(f"Obstacle found at row {row}, col {col}")
-                     #Obstacle(self, col, row, "")
+               elif tile == 'O':
+                     print(f"Obstacle found at row {row}, col {col}")
+                     Obstacle(self, col, row, "")
 
      
    # core game loop
@@ -108,18 +108,24 @@ class Game:
         text_rect.midtop = (x,y)
         surface.blit(text_surface, text_rect)
    def draw(self):
-      self.screen.fill(WHITE)
-      if self.player:
-         self.draw_text(self.screen, str(self.player.health), 24, BLACK, 100, 100)
-         self.draw_text(self.screen, str(self.player.coins), 24, BLACK, 400, 100)
-      self.draw_text(self.screen, str(self.time), 24, BLACK, 500, 100)
-      self.all_sprites.draw(self.screen)
-      pg.display.flip()
-      # Draw scrolling background
-      self.bg_scroll = (self.bg_scroll + self.bg_speed) % self.bg_image.get_width()
-      # Draw two images to create a seamless scrolling effect
-      self.screen.blit(self.bg_image, (-self.bg_scroll, 0))
-      self.screen.blit(self.bg_image, (self.bg_image.get_width() - self.bg_scroll, 0))
+         # Draw scrolling background FIRST
+         self.bg_scroll = (self.bg_scroll + self.bg_speed) % self.bg_image.get_width()
+         self.screen.blit(self.bg_image, (-self.bg_scroll, 0))
+         self.screen.blit(self.bg_image, (self.bg_image.get_width() - self.bg_scroll, 0))
+         
+         # Draw sprites on top
+         self.all_sprites.draw(self.screen)
+         
+         # Draw UI text
+         if self.player:
+            self.draw_text(self.screen, str(self.player.health), 24, BLACK, 100, 100)
+            self.draw_text(self.screen, str(self.player.coins), 24, BLACK, 400, 100)
+         self.draw_text(self.screen, str(self.time), 24, BLACK, 500, 100)
+         
+         # Update display LAST
+         pg.display.flip()
+      
+
       
 
 # entry point
