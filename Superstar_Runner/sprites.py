@@ -24,10 +24,22 @@ class Player(Sprite):
         self.game = game
         # Load animation frames
         self.load_frames()
+        # Set initial image and animation properties
         self.image = self.frames[0]
+        # Scale image to fit tile size
+        self.image = pg.transform.scale(self.image, TILESIZE)
         self.current_frame = 0
+        # Initialize animation timing
         self.last_update = pg.time.get_ticks()
         self.frame_rate = 100
+        # Scale player and frames according to PLAYER_SCALE
+        self.image = pg.transform.scale(self.image, (int(TILESIZE[0] * PLAYER_SCALE), int(TILESIZE[1] * PLAYER_SCALE)))
+        self.frames = [pg.transform.scale(f, (int(TILESIZE[0] * PLAYER_SCALE), int(TILESIZE[1] * PLAYER_SCALE))) for f in self.frames]
+        self.rect = self.image.get_rect()
+        
+        self.vel = vec(0,0)
+        self.pos = vec(x * TILESIZE[0], y * TILESIZE[1])
+        # ...rest of existing code...
         # Set up player properties
         self.rect = self.image.get_rect()
         self.vel = vec(0,0)
@@ -42,20 +54,11 @@ class Player(Sprite):
         keys = pg.key.get_pressed()
         if keys[pg.K_w]:
             self.vel.y = -self.speed*self.game.dt
-            # self.rect.y -= self.speed
-            # self.bullet_direction = "up"
-        if keys[pg.K_a]:
-            self.vel.x = -self.speed*self.game.dt
-            # self.rect.x -= self.speed
-            # self.bullet_direction = "left"
+
+
         if keys[pg.K_s]:
             self.vel.y = self.speed*self.game.dt
-            # self.rect.y += self.speed
-            # self.bullet_direction = "down"  
-        if keys[pg.K_d]:
-            self.vel.x = self.speed*self.game.dt
-            # self.rect.x += self.speed
-            # self.bullet_direction = "right"
+
         # accounting for diagonal
         if self.vel[0] != 0 and self.vel[1] != 0:
             self.vel *= 0.7071
@@ -126,63 +129,7 @@ class Player(Sprite):
         self.collide_with_stuff(self.game.all_obstacles, False)
         # print(self.cd.ready())
         
-# Enemy Mob Sprite
-class Mob(Sprite):
-    # Initialize the mob sprite
-    def __init__(self, game, x, y):
-        self.game = game
-        self.groups = game.all_sprites, game.all_mobs
-        pg.sprite.Sprite.__init__(self, self.groups)
-        Sprite.__init__(self, self.groups)
-        self.game = game
-        self.image = pg.Surface(TILESIZE)
-        self.image.fill(RED)
-        self.rect = self.image.get_rect()
-        self.vel = vec(1,1)
-        self.pos = vec(x,y)*TILESIZE[0]
-        # self.rect.x = x * TILESIZE[0]
-        # self.rect.y = y * TILESIZE[1]
-        self.speed = 3
-        print(self.pos)
-    # Handle collisions with walls
-    def collide_with_walls(self, dir):
-        if dir == 'x':
-            hits = pg.sprite.spritecollide(self, self.game.all_walls, False)
-            if hits:
-                # print(self.pos)
-                if self.vel.x > 0:
-                    self.pos.x = hits[0].rect.left - self.rect.width
-                if self.vel.x < 0:
-                    self.pos.x = hits[0].rect.right
-                # self.vel.x = 0
-                self.rect.x = self.pos.x
-        if dir == 'y':
-            hits = pg.sprite.spritecollide(self, self.game.all_walls, False)
-            if hits:
-                if self.vel.y > 0:
-                    self.pos.y = hits[0].rect.top - self.rect.height
-                if self.vel.y < 0:
-                    self.pos.y = hits[0].rect.bottom
-                # self.vel.y = 0
-                self.rect.y = self.pos.y
-    # Update mob state
-    def update(self):
-        # mob behavior
-        if self.game.player.pos.x > self.pos.x:
-            self.vel.x = 1
-        else:
-            self.vel.x = -1
-            # print("I don't need to chase the player x")
-        if self.game.player.pos.y > self.pos.y:
-            self.vel.y = 1
-        else:
-            self.vel.y = -1
-            # print("I don't need to chase the player x")
-        self.pos += self.vel * self.speed
-        self.rect.x = self.pos.x
-        self.collide_with_walls('x')
-        self.rect.y = self.pos.y
-        self.collide_with_walls('y')
+
 
 # Coin Sprite
 class Coin(Sprite):
@@ -206,8 +153,9 @@ class Wall(Sprite):
         self.groups = game.all_sprites, game.all_walls
         Sprite.__init__(self, self.groups)
         self.game = game
-        self.image = pg.Surface(TILESIZE)
-        self.image.fill(GREY)
+        #https://stackoverflow.com/questions/6339057/draw-transparent-rectangles-and-polygons-in-pygame
+        self.image = pg.Surface(TILESIZE, pg.SRCALPHA)
+        self.image.fill((0, 0, 0, 0))
         self.rect = self.image.get_rect()
         self.rect.x = x*TILESIZE[0]
         self.rect.y = y*TILESIZE[1]
@@ -221,43 +169,6 @@ class Wall(Sprite):
             hits = pg.sprites.collide_rect(self.rect, self.game.player.rect)
             if hits:
                 print("wall was encountered by the player.")
-# Pew_Pew Sprite
-class Pew_Pew(Sprite):
-    # Initialize the Pew_Pew sprite
-    def __init__(self, game, x, y):
-        self.game = game
-        self.groups = game.all_sprites, game.all_mobs
-        pg.sprite.Sprite.__init__(self, self.groups)
-        Sprite.__init__(self, self.groups)
-        self.game = game
-        self.image = pg.Surface((16, 16))
-        self.image.fill(BLACK)
-        self.rect = self.image.get_rect()
-        self.vel = vec(1,1)
-        self.pos = vec(x,y)*TILESIZE[0]
-        self.speed = 5
-        print(self.pos)
-    # Update Pew_Pew state
-    def collide_with_walls(self, dir):
-        if dir == 'x':
-            hits = pg.sprite.spritecollide(self, self.game.all_walls, False)
-            if hits:
-                # print(self.pos)
-                if self.vel.x > 0:
-                    self.pos.x = hits[0].rect.left - self.rect.width
-                if self.vel.x < 0:
-                    self.pos.x = hits[0].rect.right
-                # self.vel.x = 0
-                self.rect.x = self.pos.x
-        if dir == 'y':
-            hits = pg.sprite.spritecollide(self, self.game.all_walls, False)
-            if hits:
-                if self.vel.y > 0:
-                    self.pos.y = hits[0].rect.top - self.rect.height
-                if self.vel.y < 0:
-                    self.pos.y = hits[0].rect.bottom
-                # self.vel.y = 0
-                self.rect.y = self.pos.y
 
 
 class Obstacle(Sprite):
@@ -265,19 +176,35 @@ class Obstacle(Sprite):
     def __init__(self, game, x, y, state):
         self.groups = game.all_sprites, game.all_obstacles
         Sprite.__init__(self, self.groups)
+        pg.sprite.Sprite.__init__(self, *self.groups)
         self.game = game
-        self.image = pg.Surface(TILESIZE)
-        self.image.fill(GREEN)
-        self.rect = self.image.get_rect()
-        self.rect.x = x*TILESIZE[0]
-        self.rect.y = y*TILESIZE[1]
         self.state = state
-        print("obstacle created at", str(self.rect.x), str(self.rect.y))
-    # Update obstacle state
+        self.hit_time = None
+        # Load obstacle image
+        image_path = os.path.join(os.path.dirname(__file__), "images", "Obstacle.png")
+        self.image = pg.image.load(image_path).convert_alpha()
+
+        # scale using OBSTACLE_SCALE from settings
+        scaled_size = (int(TILESIZE[0] * OBSTACLE_SCALE), int(TILESIZE[1] * OBSTACLE_SCALE))
+        self.image = pg.transform.scale(self.image, scaled_size)
+
+        self.rect = self.image.get_rect()
+        self.rect.x = x * TILESIZE[0]
+        self.rect.y = y * TILESIZE[1]
+
+
+        print("obstacle created at", self.rect.topleft)
+
     def update(self):
         if self.state == "moving":
             self.rect.x += 1
-        elif self.state == "moveable":
-            hits = pg.sprites.collide_rect(self.rect, self.game.player.rect)
-            if hits:
-                print("obstacle was encountered by the player.")
+                # scroll with background at same speed
+        self.rect.x -= self.game.bg_speed
+        # check collision with player
+        if self.game.player and pg.sprite.collide_rect(self, self.game.player):
+            if self.hit_time is None:
+                print("die")
+                self.hit_time = pg.time.get_ticks()
+            # close game 4 seconds after hit
+            elif pg.time.get_ticks() - self.hit_time > 4000:
+                self.game.playing = False

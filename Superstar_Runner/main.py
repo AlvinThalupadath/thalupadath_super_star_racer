@@ -40,7 +40,7 @@ class Game:
       self.bg_image = pg.transform.scale(self.bg_image, (WIDTH, HEIGHT))
       # set initial background scroll values
       self.bg_scroll = 0       
-      self.bg_speed = 2 
+      self.bg_speed = 4 
 
    # new game setup
    def new(self):
@@ -59,17 +59,17 @@ class Game:
          for col, tile in enumerate(tiles):
                if tile == '1':
                   Wall(self, col, row, "")
-               elif tile == 'C':
-                  Coin(self, col, row)
                elif tile == 'P':
                   self.player = Player(self, col, row)
-               elif tile == 'M':
-                  Mob(self, col, row)
                elif tile == 'O':
                      print(f"Obstacle found at row {row}, col {col}")
                      Obstacle(self, col, row, "")
-
-     
+               elif tile in ('.', ' '):
+                  pass
+               else:
+                  # unexpected char — useful to debug
+                  print(f"Unknown tile '{tile}' at {col},{row}")  
+         
    # core game loop
    def run(self):
       while self.playing == True:
@@ -96,7 +96,7 @@ class Game:
 
       self.all_sprites.update()
       seconds = pg.time.get_ticks() // 1000
-      countdown = 10
+      countdown = 10 
       self.time = countdown - seconds
 
 # draw everything on the screen
@@ -107,22 +107,26 @@ class Game:
         text_rect = text_surface.get_rect()
         text_rect.midtop = (x,y)
         surface.blit(text_surface, text_rect)
+        
+   # draw function
    def draw(self):
-         # Draw scrolling background FIRST
+         # Draw scrolling background 
+         #https://www.geeksforgeeks.org/python/creating-a-scrolling-background-in-pygame/
+         # scroll plus speed modulas width of image
          self.bg_scroll = (self.bg_scroll + self.bg_speed) % self.bg_image.get_width()
          self.screen.blit(self.bg_image, (-self.bg_scroll, 0))
          self.screen.blit(self.bg_image, (self.bg_image.get_width() - self.bg_scroll, 0))
          
-         # Draw sprites on top
+         # Draw sprites on top of bg
          self.all_sprites.draw(self.screen)
          
-         # Draw UI text
+         # Draw text
          if self.player:
             self.draw_text(self.screen, str(self.player.health), 24, BLACK, 100, 100)
             self.draw_text(self.screen, str(self.player.coins), 24, BLACK, 400, 100)
          self.draw_text(self.screen, str(self.time), 24, BLACK, 500, 100)
          
-         # Update display LAST
+         # Update display
          pg.display.flip()
       
 
