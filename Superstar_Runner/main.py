@@ -62,14 +62,13 @@ class Game:
                elif tile == 'P':
                   self.player = Player(self, col, row)
                elif tile == 'O':
-                     print(f"Obstacle found at row {row}, col {col}")
                      Obstacle(self, col, row, "")
                elif tile in ('.', ' '):
                   pass
-               else:
-                  # unexpected char — useful to debug
-                  print(f"Unknown tile '{tile}' at {col},{row}")  
-         
+
+
+
+      
    # core game loop
    def run(self):
       while self.playing == True:
@@ -114,7 +113,9 @@ class Game:
          #https://www.geeksforgeeks.org/python/creating-a-scrolling-background-in-pygame/
          # scroll plus speed modulas width of image
          self.bg_scroll = (self.bg_scroll + self.bg_speed) % self.bg_image.get_width()
+         # draw two images to create a seamless loop
          self.screen.blit(self.bg_image, (-self.bg_scroll, 0))
+         # draw second image next to first
          self.screen.blit(self.bg_image, (self.bg_image.get_width() - self.bg_scroll, 0))
          
          # Draw sprites on top of bg

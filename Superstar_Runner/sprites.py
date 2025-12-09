@@ -193,13 +193,12 @@ class Obstacle(Sprite):
         self.rect.y = y * TILESIZE[1]
 
 
-        print("obstacle created at", self.rect.topleft)
-
     def update(self):
         if self.state == "moving":
             self.rect.x += 1
-                # scroll with background at same speed
+        # scroll with background at same speed
         self.rect.x -= self.game.bg_speed
+        
         # check collision with player
         if self.game.player and pg.sprite.collide_rect(self, self.game.player):
             if self.hit_time is None:
@@ -208,3 +207,6 @@ class Obstacle(Sprite):
             # close game 4 seconds after hit
             elif pg.time.get_ticks() - self.hit_time > 4000:
                 self.game.playing = False
+        #https://www.youtube.com/watch?v=NzCulpYC0p8
+        if self.position.x < 0:   #x value of position on the left side of screen
+            self.position.x = WIDTH   #reset to right side of screen
