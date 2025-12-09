@@ -43,6 +43,7 @@ class Player(Sprite):
         # Set up player properties
         self.rect = self.image.get_rect()
         self.vel = vec(0,0)
+        #Set position vector
         self.pos = vec(x,y) * TILESIZE[0]
         self.speed = 250
         self.health = 100
@@ -180,6 +181,7 @@ class Obstacle(Sprite):
         self.game = game
         self.state = state
         self.hit_time = None
+        self.pos = vec(x,y) * TILESIZE[0]
         # Load obstacle image
         image_path = os.path.join(os.path.dirname(__file__), "images", "Obstacle.png")
         self.image = pg.image.load(image_path).convert_alpha()
@@ -208,5 +210,12 @@ class Obstacle(Sprite):
             elif pg.time.get_ticks() - self.hit_time > 4000:
                 self.game.playing = False
         #https://www.youtube.com/watch?v=NzCulpYC0p8
-        if self.position.x < 0:   #x value of position on the left side of screen
-            self.position.x = WIDTH   #reset to right side of screen
+        if self.pos.x < 0:   #x value of position on the left side of screen
+            self.pos.x = WIDTH   #reset to right side of screen
+            self.rect.x = self.pos.x
+            self.rect.y = randint(HEIGHT//2, HEIGHT - self.rect.height)  #random y position
+            # move left with background
+        self.pos.x -= self.game.bg_speed
+        # set rect x to pos x
+        self.rect.x = self.pos.x
+
