@@ -8,6 +8,7 @@ class Map:
         # creates empty list for map data
         self.data = []
         # open a specific file and close with 'with'
+        # read each line and strip newline characters
         with open(filename, 'rt') as f:
             for line in f:
                 self.data.append(line.rstrip('\n'))

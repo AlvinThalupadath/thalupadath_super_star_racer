@@ -34,10 +34,12 @@ class Game:
       self.map = Map(path.join(self.game_folder, 'level1.txt'))
       # load background image
       bg_path = path.join(self.game_folder, "images", "bg_image.png")
+
       # load and convert for better performance
       self.bg_image = pg.image.load(bg_path).convert()
       # scale to fit screen
       self.bg_image = pg.transform.scale(self.bg_image, (WIDTH, HEIGHT))
+
       # set initial background scroll values
       self.bg_scroll = 0       
       self.bg_speed = 4 
@@ -63,6 +65,8 @@ class Game:
                   self.player = Player(self, col, row)
                elif tile == 'O':
                      Obstacle(self, col, row, "")
+               elif tile == 'C':
+                  Coin(self, col, row)
                elif tile in ('.', ' '):
                   pass
 
@@ -95,8 +99,8 @@ class Game:
 
       self.all_sprites.update()
       seconds = pg.time.get_ticks() // 1000
-      countdown = 10 
-      self.time = countdown - seconds
+      countdown = 0 
+      self.time = countdown + seconds
 
 # draw everything on the screen
    def draw_text(self, surface, text, size, color, x, y):
@@ -123,9 +127,8 @@ class Game:
          
          # Draw text
          if self.player:
-            self.draw_text(self.screen, str(self.player.health), 24, BLACK, 100, 100)
-            self.draw_text(self.screen, str(self.player.coins), 24, BLACK, 400, 100)
-         self.draw_text(self.screen, str(self.time), 24, BLACK, 500, 100)
+
+            self.draw_text(self.screen, str(self.time), 24, BLACK, 500, 100)
          
          # Update display
          pg.display.flip()

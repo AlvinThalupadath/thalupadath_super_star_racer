@@ -140,7 +140,7 @@ class Coin(Sprite):
         self.groups = game.all_sprites, game.all_coins
         Sprite.__init__(self, self.groups)
         self.image = pg.Surface(TILESIZE)
-        self.image.fill(YELLOW)
+        self.image.fill(BLACK)
         self.rect = self.image.get_rect()
         self.rect.x = x * TILESIZE[0]
         self.rect.y = y *TILESIZE[1]
