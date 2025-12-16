@@ -55,9 +55,12 @@ class Player(Sprite):
         keys = pg.key.get_pressed()
         if keys[pg.K_w]:
             self.vel.y = -self.speed*self.game.dt
-
+        if keys[pg.K_UP]:
+            self.vel.y = -self.speed*self.game.dt
 
         if keys[pg.K_s]:
+            self.vel.y = self.speed*self.game.dt
+        if keys[pg.K_DOWN]:
             self.vel.y = self.speed*self.game.dt
 
         # accounting for diagonal
@@ -203,13 +206,24 @@ class Obstacle(Sprite):
         
         # check collision with player
         if self.game.player and pg.sprite.collide_rect(self, self.game.player):
+            # on first hit, reduce player health
             if self.hit_time is None:
-                print("die")
+                # reduce player health
+                self.game.player.health -= 20
+                print("-20 Health!")
                 self.hit_time = pg.time.get_ticks()
-            # close game 4 seconds after hit
-            elif pg.time.get_ticks() - self.hit_time > 4000:
-                self.game.playing = False
+            else:
+                # check if 1 second has passed since last hit
+                current_time = pg.time.get_ticks()
+                if current_time - self.hit_time >= 1000:
+                    self.game.player.health -= 20
+                    print("-20 Health!")
+                    self.hit_time = current_time
+            
         #https://www.youtube.com/watch?v=NzCulpYC0p8
+
+        # wrapping around screen
+        #reset position when off-screen
         if self.pos.x < 0:   #x value of position on the left side of screen
             self.pos.x = WIDTH   #reset to right side of screen
             self.rect.x = self.pos.x
@@ -218,4 +232,23 @@ class Obstacle(Sprite):
         self.pos.x -= self.game.bg_speed
         # set rect x to pos x
         self.rect.x = self.pos.x
+
+        
+        if self.state == "visible":
+            self.image.set_alpha(255)
+        elif self.state == "invisible":
+            self.image.fill_alpha(0, 0, 0, 0)
+            self.pos.x = 1000  # Move off-screen when invisible
+            self.pos.y = 1000  # Move off-screen when invisible            
+        elif self.state == "transparent":
+            self.image.set_alpha(128)
+            self.image.fill((0, 0, 0, 0))
+            self.rect.x = 1000  # Move off-screen when invisible
+            self.pos.y = 1000  # Move off-screen when invisible
+
+            
+
+
+        # print("obstacle created at", str(self.rect.x), str(self.rect.y))
+
 

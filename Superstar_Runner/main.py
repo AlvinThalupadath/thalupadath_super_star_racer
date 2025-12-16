@@ -42,7 +42,8 @@ class Game:
 
       # set initial background scroll values
       self.bg_scroll = 0       
-      self.bg_speed = 4 
+      self.bg_speed = 9 
+      
 
    # new game setup
    def new(self):
@@ -56,7 +57,7 @@ class Game:
       self.all_walls = pg.sprite.Group()
       self.all_obstacles = pg.sprite.Group()
 
-      # create objects based on the map data
+      # create objects wbased on the map data
       for row, tiles in enumerate(self.map.data):
          for col, tile in enumerate(tiles):
                if tile == '1':
@@ -94,6 +95,7 @@ class Game:
         if event.type == pg.MOUSEBUTTONDOWN:
            print("I can get input from mousey mouse mouse mousekerson")
 
+
 # update game state
    def update(self):
 
@@ -101,6 +103,10 @@ class Game:
       seconds = pg.time.get_ticks() // 1000
       countdown = 0 
       self.time = countdown + seconds
+      if self.player:
+         if self.player.health <= 0:
+            self.bg_image = pg.image.load(path.join(self.game_folder, "images", "game_over.png")).convert()
+
 
 # draw everything on the screen
    def draw_text(self, surface, text, size, color, x, y):
@@ -129,6 +135,8 @@ class Game:
          if self.player:
 
             self.draw_text(self.screen, str(self.time), 24, BLACK, 500, 100)
+            self.draw_text(self.screen, "Health: " + str(self.player.health), 24, RED, 70, 10)
+      
          
          # Update display
          pg.display.flip()
