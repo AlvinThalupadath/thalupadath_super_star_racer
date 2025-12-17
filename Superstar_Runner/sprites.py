@@ -210,22 +210,20 @@ class Obstacle(Sprite):
         
         # check collision with player
         if self.game.player and pg.sprite.collide_rect(self, self.game.player):
-            # on first hit, reduce player health
+            # if player hits obstacele it does 20 damage to player and has a cooldown of 1 second
             if self.hit_time is None:
                 # reduce player health
                 self.game.player.health -= 20
                 print("-20 Health!")
                 print("Player health:", self.game.player.health)
                 self.hit_time = pg.time.get_ticks()
-
-                
             else:
                 # check if 1 second has passed since last hit
                 current_time = pg.time.get_ticks()
                 if current_time - self.hit_time >= 1000:
                     self.game.player.health -= 20
                     print("-20 Health!")
-
+                    self.hit_time = current_time
 
                     
 

@@ -43,6 +43,7 @@ class Game:
       # set initial background scroll values
       self.bg_scroll = 0       
       self.bg_speed = 9 
+      
       #background music
       pg.mixer.music.load(path.join(self.game_folder, "sounds", "bg_music.mp3"))
       pg.mixer.music.play(-1)  # -1 means loop indefinitely
