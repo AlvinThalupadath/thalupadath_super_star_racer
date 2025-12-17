@@ -20,4 +20,4 @@ GREY = (150,150,150)
 FPS = 30
 SCORE = 0
 # Player settings
-HEALTH = 100
+HEALTH = 150

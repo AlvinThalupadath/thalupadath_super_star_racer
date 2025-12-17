@@ -200,6 +200,8 @@ class Obstacle(Sprite):
         self.rect.y = y * TILESIZE[1]
 
 
+
+
     def update(self):
         if self.state == "moving":
             self.rect.x += 1
@@ -215,14 +217,18 @@ class Obstacle(Sprite):
                 print("-20 Health!")
                 print("Player health:", self.game.player.health)
                 self.hit_time = pg.time.get_ticks()
+
+                
             else:
                 # check if 1 second has passed since last hit
                 current_time = pg.time.get_ticks()
                 if current_time - self.hit_time >= 1000:
                     self.game.player.health -= 20
                     print("-20 Health!")
-                    self.hit_time = current_time
-            
+
+
+                    
+
         #https://www.youtube.com/watch?v=NzCulpYC0p8
 
         # wrapping around screen
