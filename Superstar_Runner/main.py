@@ -23,7 +23,7 @@ class Game:
       pg.init()
       self.clock = pg.time.Clock()
       self.screen = pg.display.set_mode((WIDTH, HEIGHT))
-      pg.display.set_caption("Alvin's awesome game!!!!!")
+      pg.display.set_caption("Super Star Runner")
       self.playing = True
       self.bg_speed = 4
    
@@ -56,6 +56,8 @@ class Game:
       self.all_coins = pg.sprite.Group()
       self.all_walls = pg.sprite.Group()
       self.all_obstacles = pg.sprite.Group()
+      self.all_heal_tomatoes = pg.sprite.Group()
+      self.all_empty = pg.sprite.Group()
 
       # create objects wbased on the map data
       for row, tiles in enumerate(self.map.data):
@@ -68,8 +70,12 @@ class Game:
                      Obstacle(self, col, row, "")
                elif tile == 'C':
                   Coin(self, col, row)
-               elif tile in ('.', ' '):
-                  pass
+
+               elif tile == 'H':
+                  heal_tomato(self, col, row)
+               elif tile in ('.', ' '): 
+                  Empty(self, col, row)
+                  
 
 
 
@@ -77,7 +83,12 @@ class Game:
    # core game loop
    def run(self):
       while self.playing == True:
-         self.dt = self.clock.tick(FPS) / 1000
+         # delta time
+         if self.player.health > 0:
+            self.dt = self.clock.tick(FPS) / 1000
+         else:
+            self.dt = 0
+         
          # input
          self.events()
          # process
@@ -103,9 +114,30 @@ class Game:
       seconds = pg.time.get_ticks() // 1000
       countdown = 0 
       self.time = countdown + seconds
-      if self.player:
-         if self.player.health <= 0:
-            self.bg_image = pg.image.load(path.join(self.game_folder, "images", "game_over.png")).convert()
+      if self.time >= 15:
+         self.bg_speed = 15   # increase speed after 15 seconds
+      if self.time >= 30:
+         self.bg_speed = 20   # increase speed after 30 seconds
+      if self.time >= 45:
+         self.bg_speed = 25   # increase speed after 45 seconds
+      if self.time >= 60:
+         self.bg_speed = 30   # increase speed after 60 seconds 
+              
+      if self.player.health < 0:
+
+         self.bg_image = pg.image.load(path.join(self.game_folder, "images", "game_over.png")).convert()
+         self.bg_image = pg.transform.scale(self.bg_image, (WIDTH, HEIGHT))
+         #pauses timer
+         self.dt = 0
+         #pauses timer
+         
+         #obstacles become opaque
+         for obstacle in self.all_obstacles:
+            obstacle.image.set_alpha(0)
+         for heal_tomato in self.all_heal_tomatoes:
+            heal_tomato.image.set_alpha(0)
+
+         
 
 
 # draw everything on the screen
@@ -132,10 +164,11 @@ class Game:
          self.all_sprites.draw(self.screen)
          
          # Draw text
-         if self.player:
-
-            self.draw_text(self.screen, str(self.time), 24, BLACK, 500, 100)
+         if self.player.health > 0:
+            
+            self.draw_text(self.screen, "TIME: " + str(self.time), 24, BLACK, 500, 100)
             self.draw_text(self.screen, "Health: " + str(self.player.health), 24, RED, 70, 10)
+            self.draw_text(self.screen, "Get tomatoes if your running low on health and dodge the boxes!", 20, BLACK, 500, 150)
       
          
          # Update display

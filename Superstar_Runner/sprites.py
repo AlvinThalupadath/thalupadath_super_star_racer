@@ -46,9 +46,10 @@ class Player(Sprite):
         #Set position vector
         self.pos = vec(x,y) * TILESIZE[0]
         self.speed = 250
-        self.health = 100
+        self.health = HEALTH
         self.coins = 0
         self.cd = Cooldown(1000)
+
         # Get player input
     def get_keys(self):
         self.vel = vec(0,0)
@@ -107,7 +108,8 @@ class Player(Sprite):
             self.last_update = now
             self.current_frame = (self.current_frame + 1) % len(self.frames)
             self.image = self.frames[self.current_frame]
-    # Scale images to fit tile size            
+    # Scale images to fit tile size   
+    #          
     def collide_with_stuff(self, group, kill):
         hits = pg.sprite.spritecollide(self, group, kill)
         if hits: 
@@ -211,6 +213,7 @@ class Obstacle(Sprite):
                 # reduce player health
                 self.game.player.health -= 20
                 print("-20 Health!")
+                print("Player health:", self.game.player.health)
                 self.hit_time = pg.time.get_ticks()
             else:
                 # check if 1 second has passed since last hit
@@ -234,21 +237,84 @@ class Obstacle(Sprite):
         self.rect.x = self.pos.x
 
         
-        if self.state == "visible":
-            self.image.set_alpha(255)
-        elif self.state == "invisible":
-            self.image.fill_alpha(0, 0, 0, 0)
-            self.pos.x = 1000  # Move off-screen when invisible
-            self.pos.y = 1000  # Move off-screen when invisible            
-        elif self.state == "transparent":
-            self.image.set_alpha(128)
-            self.image.fill((0, 0, 0, 0))
-            self.rect.x = 1000  # Move off-screen when invisible
-            self.pos.y = 1000  # Move off-screen when invisible
+       
 
             
 
 
         # print("obstacle created at", str(self.rect.x), str(self.rect.y))
 
+class Empty(Sprite):
+    # Initialize the empty sprite that is transparent and does not interact with other sprites
+    def __init__(self, game, x, y):
+        self.groups = game.all_sprites, game.all_obstacles
+        Sprite.__init__(self, self.groups)
+        self.image = pg.Surface(TILESIZE)
+        self.image.set_alpha(0)  # Set transparency to 0 (completely transparent)
+        
+        self.rect = self.image.get_rect()
+        self.rect.x = x * TILESIZE[0]
+        self.rect.y = y * TILESIZE[1]
+    
+        
+        pass
+    def update(self):
+        pass    # No behavior for empty sprite
 
+class heal_tomato(Sprite):
+    def __init__(self, game, x, y):
+        self.game = game
+        self.groups = game.all_sprites, game.all_heal_tomatoes
+        Sprite.__init__(self, self.groups)
+        self.image = pg.Surface(TILESIZE)
+        self.hit_time = None
+        self.image.fill(RED)
+        self.rect = self.image.get_rect()
+        self.pos = vec(x,y) * TILESIZE[0]   
+        self.rect.x = x * TILESIZE[0]
+        self.rect.y = y * TILESIZE[1]
+
+    def spawn(self):
+        # only spawn at random position on screen within bounds evrey 25 seconds 1 at a time if player is alive and under 50% health
+        if self.game.player and self.game.player.health < HEALTH//2 and self.game.player.health > 0 and pg.time.get_ticks() % 25000 == 0:
+            self.pos.x = randint(0, WIDTH - self.rect.width)
+            self.pos.y = randint(HEIGHT//2, HEIGHT - self.rect.height)
+            self.rect.x = self.pos.x
+            self.rect.y = self.pos.y
+            
+            print("heal tomato spawned at", str(self.rect.x), str(self.rect.y))
+        
+
+    def heal_player(self):
+        if self.game.player and pg.sprite.collide_rect(self, self.game.player):
+            # on first hit, reduce player health
+            if self.hit_time is None:
+                # reduce player health
+                self.game.player.health += 10
+                print("+10 Health!")
+                print("Player health:", self.game.player.health)
+                self.hit_time = pg.time.get_ticks()
+            else:
+                # check if 1 second has passed since last hit
+                current_time = pg.time.get_ticks()
+                if current_time - self.hit_time >= 1000:
+                    self.game.player.health += 10
+                    print("+10 Health!")
+                    self.hit_time = current_time
+            
+        
+
+    def update(self):
+        self.heal_player()
+        self.spawn()
+        # wrapping around screen
+        #reset position when off-screen
+        if self.pos.x < 0:   #x value of position on the left side of screen
+            self.pos.x = WIDTH   #reset to right side of screen
+            self.rect.x = self.pos.x
+            self.rect.y = randint(HEIGHT//2, HEIGHT - self.rect.height)  #random y position
+            # move left with background
+        self.pos.x -= self.game.bg_speed
+        # set rect x to pos x
+        self.rect.x = self.pos.x
+        pass
